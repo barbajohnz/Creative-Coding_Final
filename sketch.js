@@ -7,13 +7,25 @@
 
 // Part 4: Add a button. Program the button so that when you click on it, a new object will be added to the array.
 
+
+
 let hearts = []; //  array to hold multiple hearts
 let button; // button to add more hearts
 let colors; // array of possible heart colors
+let img1;
+
+
+function preload(){
+  img1 = loadImage('/Photos/subject1.png');
+
+}
 
 function setup() {
   createCanvas(600, 400);
   noStroke();
+  // img1.resize(25,25);
+  image(img1, 0,0);
+
   colors = [color("red"), color("blue"), color("yellow")];
 
   // make 10 hearts to start
@@ -30,7 +42,7 @@ function setup() {
 }
 
 function draw() {
-  background("white");
+  // background("white");
 
   // animate all hearts
   for (let h of hearts) {
