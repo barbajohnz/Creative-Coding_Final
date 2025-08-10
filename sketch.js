@@ -313,7 +313,7 @@ function startOver() {
 }
 
 // Handle when someone resizes the browser window
-function windowResized() {
+function windowResized() {S
   resizeCanvas(windowWidth, windowHeight); // make canvas fit new window size
   // Reposition and resize the surprise gif if it exists
   if (surpriseGif) {
