@@ -1,159 +1,272 @@
-let stickers = []; // array for bouncing stickers
-let glamEmojis = []; // array for floating glam emojis
-let button; // glam button
-let images = []; // loaded images
-let stickerOrder = []; // shuffled order, each image twice
-let nextIndex = 0; // track sticker index
-let surpriseImg; // animated gif for the end
+// My Drag Stickers Project!
+// This is my first time making bouncing stickers
 
+// Variables to store stuff
+let myStickers = [];
+let sparkles = [];
+let addButton;
+let resetButton;
+let speedControl;
+let stickerImages = [];
+let whichStickerNext = 0;
+let surpriseGif;
+let surpriseSound;
+let howFast = 2;
+
+// Load all my sticker images
 function preload() {
-  // load subject images
-  for (let i = 0; i < 16; i++) {
-    let filename = `Photos/subject${i + 1}.png`;
-    images[i] = loadImage(filename);
+  for (let i = 0; i < 22; i++) {
+    let imageName = `Photos/subject${i + 1}.png`;
+    stickerImages[i] = loadImage(imageName);
   }
 }
 
+// Set everything up
 function setup() {
   createCanvas(windowWidth, windowHeight);
   imageMode(CENTER);
-  noCursor(); // hide default cursor
+  noCursor();
 
-  // fill sticker order (each image twice)
-  for (let i = 0; i < 2; i++) {
-    for (let j = 0; j < 16; j++) {
-      stickerOrder.push(j);
-    }
-  }
-  shuffle(stickerOrder, true);
-
-  // create surprise gif in center
-  surpriseImg = createImg('Photos/surprise1.gif');
-  surpriseImg.position(width / 2, height / 2);
-  surpriseImg.size(min(windowWidth, windowHeight) / 2, min(windowWidth, windowHeight) / 2);
-  surpriseImg.style('transform', 'translate(-50%, -50%)');
-  surpriseImg.hide();
-
-  // glam button
-  button = createButton("Add a Drag Sticker 💄✨");
-  button.position(20, 20);
-  button.style('position', 'fixed');
-  button.style('font-size', '28px');
-  button.style('font-weight', 'bold');
-  button.style('color', '#ffffff');
-  button.style('background', 'linear-gradient(45deg, hotpink, deeppink, violet)');
-  button.style('border', 'none');
-  button.style('border-radius', '50px');
-  button.style('padding', '15px 30px');
-  button.style('box-shadow', '0 4px 15px rgba(0,0,0,0.3)');
-  // button.style('cursor', 'pointer');
-  button.style('transition', 'transform 0.2s ease');
-  button.mouseOver(() => {
-    button.style('transform', 'scale(1.1)');
-  });
-  button.mouseOut(() => {
-    button.style('transform', 'scale(1)');
-  });
-  button.mousePressed(addSticker);
+  makeButtons();
+  makeSpeedSlider();
+  makeSurpriseStuff();
 }
 
+// Main drawing loop
 function draw() {
   background(255);
-
-  // update and display stickers
-  for (let s of stickers) {
-    s.move();
-    s.display();
+  
+  // Get speed from slider
+  if (speedControl) {
+    howFast = speedControl.value();
   }
 
-  // update and display glam emojis
-  for (let g of glamEmojis) {
-    g.move();
-    g.display();
+  // Move and draw sparkles
+  for (let i = sparkles.length - 1; i >= 0; i--) {
+    moveSparkle(i);
+    drawSparkle(i);
+    
+    // Remove sparkles that faded away
+    if (sparkles[i].fade <= 0) {
+      sparkles.splice(i, 1);
+    }
+  }
+  
+  // Move and draw stickers
+  for (let i = 0; i < myStickers.length; i++) {
+    moveSticker(i);
+    drawSticker(i);
   }
 
-  // draw kiss emoji as custom cursor
-  textSize(60); // adjust cursor size
+  // Draw kiss cursor
+  textSize(60);
   textAlign(CENTER, CENTER);
   text("💋", mouseX, mouseY);
 }
 
-function addSticker() {
-  if (nextIndex < stickerOrder.length) {
-    // add sticker
-    let imgIndex = stickerOrder[nextIndex];
-    stickers.push(new ImageSticker(random(width), random(height), images[imgIndex]));
-
-    // add 2-3 floating glam emojis for fun
-    let emojis = ["💄", "🤡", "✨", "👑", "🌈", "💃", "🤖","🫦"];
-    let count = int(random(2, 4));
-    for (let i = 0; i < count; i++) {
-      glamEmojis.push(new GlamEmoji(random(emojis), random(width), random(height)));
+// When I click the main button
+function addNewStickers() {
+  if (whichStickerNext < 22) {
+    // Add one sticker
+    addOneSticker();
+    addSomeSparkles();
+    whichStickerNext++;
+    
+    // Add another sticker if I can
+    if (whichStickerNext < 22) {
+      addOneSticker();
+      addSomeSparkles();
+      whichStickerNext++;
     }
-
-    nextIndex++;
-
-    // update button label if last sticker is next
-    if (nextIndex === stickerOrder.length) {
-      button.html("Click to see a Surprise Barbie 💅🎁");
+    
+    // Change button text when done
+    if (whichStickerNext >= 22) {
+      addButton.html("Click for Surprise! 💅🎁");
     }
-
-  } else if (nextIndex === stickerOrder.length) {
-    // show surprise gif
-    surpriseImg.show();
-    button.remove();
-    nextIndex++;
+  } else {
+    // Show the surprise!
+    showMySurprise();
   }
 }
 
+// Add one sticker to the screen
+function addOneSticker() {
+  let newSticker = {
+    x: random(width),
+    y: random(height),
+    speedX: random(-howFast, howFast),
+    speedY: random(-howFast, howFast),
+    image: stickerImages[whichStickerNext],
+    size: min(windowWidth, windowHeight) / 5
+  };
+  myStickers.push(newSticker);
+}
+
+// Add sparkly emojis
+function addSomeSparkles() {
+  let emojiList = ["💄", "💋", "✨", "👑", "🪩", "💎", "👠", "👜", "🎀", "🌟", "🍸", "🍾", "💅", "🫦", "🪽", "🦚", "🧿", "🔥", "🌈", "💃", "💖", "🦄"];
+  
+  let howMany = int(random(2, 5));
+  
+  for (let i = 0; i < howMany; i++) {
+    let newSparkle = {
+      emoji: random(emojiList),
+      x: random(width),
+      y: random(height),
+      speedX: random(-howFast * 0.5, howFast * 0.5),
+      speedY: random(-howFast * 0.5, howFast * 0.5),
+      size: random(24, 52),
+      fade: 255,
+      fadeSpeed: random(0.5, 1.5),
+      spin: 0,
+      spinSpeed: random(-0.05, 0.05)
+    };
+    sparkles.push(newSparkle);
+  }
+}
+
+// Move a sticker around
+function moveSticker(i) {
+  let sticker = myStickers[i];
+  
+  // Move the sticker
+  sticker.x = sticker.x + sticker.speedX;
+  sticker.y = sticker.y + sticker.speedY;
+  
+  // Bounce off walls
+  if (sticker.x < 0 || sticker.x > width) {
+    sticker.speedX = sticker.speedX * -1;
+  }
+  if (sticker.y < 0 || sticker.y > height) {
+    sticker.speedY = sticker.speedY * -1;
+  }
+}
+
+// Draw a sticker
+function drawSticker(i) {
+  let sticker = myStickers[i];
+  image(sticker.image, sticker.x, sticker.y, sticker.size, sticker.size);
+}
+
+// Move a sparkle
+function moveSparkle(i) {
+  let sparkle = sparkles[i];
+  
+  // Move it
+  sparkle.x = sparkle.x + sparkle.speedX;
+  sparkle.y = sparkle.y + sparkle.speedY;
+  sparkle.spin = sparkle.spin + sparkle.spinSpeed;
+  
+  // Bounce off walls
+  if (sparkle.x < 0 || sparkle.x > width) {
+    sparkle.speedX = sparkle.speedX * -1;
+  }
+  if (sparkle.y < 0 || sparkle.y > height) {
+    sparkle.speedY = sparkle.speedY * -1;
+  }
+  
+  // Make it fade away
+  sparkle.fade = sparkle.fade - sparkle.fadeSpeed;
+  if (sparkle.fade < 0) {
+    sparkle.fade = 0;
+  }
+}
+
+// Draw a sparkle
+function drawSparkle(i) {
+  let sparkle = sparkles[i];
+  
+  push();
+  translate(sparkle.x, sparkle.y);
+  rotate(sparkle.spin);
+  textSize(sparkle.size);
+  textAlign(CENTER, CENTER);
+  fill(0, 0, 0, sparkle.fade);
+  text(sparkle.emoji, 0, 0);
+  pop();
+}
+
+// Make my buttons
+function makeButtons() {
+  addButton = createButton("Add Drag Stickers! 💄✨");
+  addButton.position(20, 20);
+  styleMyButton(addButton, 'hotpink');
+  addButton.mousePressed(addNewStickers);
+}
+
+// Make the speed slider
+function makeSpeedSlider() {
+  speedControl = createSlider(0.5, 5, 2, 0.1);
+  speedControl.position(width - 250, 20);
+  speedControl.style('width', '200px');
+  
+  let speedLabel = createP('Speed Control 🏃‍♀️');
+  speedLabel.position(width - 250, 0);
+  speedLabel.style('color', 'deeppink');
+  speedLabel.style('font-weight', 'bold');
+  speedLabel.style('margin', '0');
+}
+
+// Make reset button
+function makeResetButton() {
+  resetButton = createButton("Start Over! 🔄");
+  resetButton.position(20, 80);
+  styleMyButton(resetButton, 'orange');
+  resetButton.mousePressed(startOver);
+}
+
+// Style my buttons
+function styleMyButton(button, color) {
+  button.style('font-size', '26px');
+  button.style('font-weight', 'bold');
+  button.style('color', 'white');
+  button.style('background', color);
+  button.style('border', 'none');
+  button.style('border-radius', '50px');
+  button.style('padding', '12px 28px');
+  button.style('cursor', 'pointer');
+}
+
+// Make surprise elements
+function makeSurpriseStuff() {
+  surpriseGif = createImg('Photos/surprise1.gif');
+  surpriseGif.position(width / 2, height / 2);
+  surpriseGif.size(min(windowWidth, windowHeight) / 2, min(windowWidth, windowHeight) / 2);
+  surpriseGif.style('transform', 'translate(-50%, -50%)');
+  surpriseGif.style('position', 'fixed');
+  surpriseGif.hide();
+
+  surpriseSound = createAudio('Photos/asmrcode.mp3');
+  surpriseSound.volume(1.0);
+  surpriseSound.hide();
+}
+
+// Show the surprise
+function showMySurprise() {
+  surpriseGif.show();
+  surpriseSound.play();
+  addButton.remove();
+  makeResetButton();
+}
+
+// Start everything over
+function startOver() {
+  myStickers = [];
+  sparkles = [];
+  whichStickerNext = 0;
+  surpriseGif.hide();
+  surpriseSound.stop();
+  if (resetButton) {
+    resetButton.remove();
+  }
+  makeButtons();
+}
+
+// Handle window resize
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  if (surpriseImg) {
-    surpriseImg.position(width / 2, height / 2);
-    surpriseImg.size(min(windowWidth, windowHeight) / 2, min(windowWidth, windowHeight) / 2);
-  }
-}
-
-// bouncing sticker class
-class ImageSticker {
-  constructor(x, y, img) {
-    this.x = x;
-    this.y = y;
-    this.vx = random(-2, 2);
-    this.vy = random(-2, 2);
-    this.img = img;
-    this.size = min(windowWidth, windowHeight) / 5;
-  }
-  move() {
-    this.x += this.vx;
-    this.y += this.vy;
-    if (this.x < 0 || this.x > width) this.vx *= -1;
-    if (this.y < 0 || this.y > height) this.vy *= -1;
-  }
-  display() {
-    image(this.img, this.x, this.y, this.size, this.size);
-  }
-}
-
-// floating glam emoji class
-class GlamEmoji {
-  constructor(char, x, y) {
-    this.char = char;
-    this.x = x;
-    this.y = y;
-    this.vx = random(-1, 1);
-    this.vy = random(-1, 1);
-    this.size = random(24, 48);
-  }
-  move() {
-    this.x += this.vx;
-    this.y += this.vy;
-    if (this.x < 0 || this.x > width) this.vx *= -1;
-    if (this.y < 0 || this.y > height) this.vy *= -1;
-  }
-  display() {
-    textSize(this.size);
-    textAlign(CENTER, CENTER);
-    text(this.char, this.x, this.y);
+  if (surpriseGif) {
+    surpriseGif.position(width / 2, height / 2);
+    surpriseGif.size(min(windowWidth, windowHeight) / 2, min(windowWidth, windowHeight) / 2);
   }
 }

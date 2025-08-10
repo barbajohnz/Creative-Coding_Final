@@ -6,6 +6,3 @@ html, body {
 canvas {
   display: block;
 }
-button {
-  cursor: url('/Photos/subject1.png'),auto;
-}
