@@ -30,8 +30,8 @@ let howFast = 2; // how fast things move (starts at 2)
 // SETUP FUNCTIONS - Getting everything ready
 // ========================================
 
-// Load all my sticker images BEFORE everything starts
-// preload() runs first, before setup()
+// all my sticker images load BEFORE everything starts
+// preload runs first, before setup
 function preload() {
   // Loop through numbers 1 to 22 to load all images
   for (let i = 0; i < 22; i++) {
@@ -43,7 +43,6 @@ function preload() {
 }
 
 // Set everything up when the program starts
-// setup() runs once at the beginning
 function setup() {
   createCanvas(windowWidth, windowHeight); // make canvas fill the whole window
   imageMode(CENTER); // when I draw images, use center as reference point
@@ -56,12 +55,11 @@ function setup() {
 }
 
 // ========================================
-// MAIN GAME LOOP - What happens every frame
+// MAIN GAME LOOP 
 // ========================================
 
-// Main drawing loop - this runs over and over again (like 60 times per second!)
 function draw() {
-  background(255); // paint the background white every frame (255 = white)
+  background("white"); 
   
   // Get the current speed from the slider
   if (speedControl) { // make sure the slider exists first
@@ -70,8 +68,8 @@ function draw() {
 
   // Handle all the sparkly emojis
   for (let i = 0; i < sparkles.length; i++) {
-    moveSparkle(i); // move this sparkle
-    drawSparkle(i); // draw this sparkle
+    moveSparkle(i); // move this emoji
+    drawSparkle(i); // draw this emoji
   }
   
   // Handle all the bouncing stickers
@@ -80,7 +78,7 @@ function draw() {
     drawSticker(i); // draw this sticker
   }
 
-  // Draw my custom cursor (kiss emoji that follows the mouse)
+  // custom cursor (kiss emoji that follows the mouse)
   textSize(60); // make the text big
   textAlign(CENTER, CENTER); // center the text on the mouse position
   text("💋", mouseX, mouseY); // draw kiss emoji at mouse position
@@ -108,7 +106,7 @@ function addNewStickers() {
     
     // Change the button text when all stickers are added
     if (whichStickerNext >= 22) { // if we've added all 22 stickers
-      addButton.html("Click for Surprise! 💅🎁"); // change button text
+      addButton.html("Click for Surprise! 🎁😈🫦"); // change button text
     }
   } else {
     // All stickers have been added, so show the surprise!
@@ -130,9 +128,9 @@ function addOneSticker() {
   myStickers.push(newSticker); // add this new sticker to my stickers array
 }
 
-// Add some sparkly emojis to make things more fun!
+// Add some sparkly emojis
 function addSomeSparkles() {
-  // My list of fun emojis to use as sparkles
+  // list of fun emojis to use as sparkles
   let emojiList = ["💄", "💋", "✨", "👑", "🪩", "💎", "👠", "👜", "🎀", "🌟", "🍸", "🍾", "💅", "🫦", "🪽", "🦚", "🧿", "🔥", "🌈", "💃", "💖", "🦄"];
   
   let howMany = int(random(2, 5)); // randomly pick between 2 and 4 sparkles
@@ -176,11 +174,11 @@ function moveSticker(i) {
   }
 }
 
-// Move a sparkle emoji and make it spin
+// Move an emoji and make it spin
 function moveSparkle(i) {
   let sparkle = sparkles[i]; // get the sparkle at position i
   
-  // Move the sparkle by its speed
+  // Move the emoji by its speed
   sparkle.x = sparkle.x + sparkle.speedX; // move horizontally
   sparkle.y = sparkle.y + sparkle.speedY; // move vertically
   sparkle.spin = sparkle.spin + sparkle.spinSpeed; // rotate it
@@ -248,7 +246,7 @@ function makeSpeedSlider() {
 
 // Create the reset button (only appears after surprise)
 function makeResetButton() {
-  resetButton = createButton("Start Over! 🔄"); // create button
+  resetButton = createButton("Girlll run that shit back! 🔄"); // create button
   resetButton.position(20, 80); // put it below the main button
   styleMyButton(resetButton, 'orange'); // make it orange
   resetButton.mousePressed(startOver); // when clicked, run startOver function
@@ -310,14 +308,4 @@ function startOver() {
     resetButton.remove(); // remove it
   }
   makeButtons(); // create the main button again
-}
-
-// Handle when someone resizes the browser window
-function windowResized() {S
-  resizeCanvas(windowWidth, windowHeight); // make canvas fit new window size
-  // Reposition and resize the surprise gif if it exists
-  if (surpriseGif) {
-    surpriseGif.position(width / 2, height / 2); // recenter it
-    surpriseGif.size(min(windowWidth, windowHeight) / 2, min(windowWidth, windowHeight) / 2); // resize it
-  }
 }
