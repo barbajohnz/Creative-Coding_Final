@@ -295,6 +295,7 @@ function showMySurprise() {
 
 // ========================================
 // UTILITY FUNCTIONS - Helper functions
+//
 // ========================================
 
 // Reset everything back to the beginning
